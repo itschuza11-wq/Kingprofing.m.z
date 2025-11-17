@@ -2,34 +2,75 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (error) alert(error.message);
-    else alert("Magic link sent to your email!");
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Login successful!");
+      router.push("/admin"); // Redirect to Admin page
+    }
+  };
+
+  const handleSignUp = async () => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Sign-up successful! Please login now.");
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-bold">Login</h1>
+      <h1 className="text-2xl font-bold">Login or Sign-up</h1>
 
       <input
         type="email"
-        placeholder="Enter email"
+        placeholder="Email"
         className="border p-3 mt-4 rounded-lg"
+        value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
 
-      <button
-        onClick={handleLogin}
-        className="mt-4 px-5 py-2 bg-green-600 text-white rounded-lg"
-      >
-        Send Login Link
-      </button>
+      <input
+        type="password"
+        placeholder="Password"
+        className="border p-3 mt-4 rounded-lg"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <div className="flex gap-4 mt-4">
+        <button
+          onClick={handleLogin}
+          className="px-5 py-2 bg-green-600 text-white rounded-lg"
+        >
+          Login
+        </button>
+
+        <button
+          onClick={handleSignUp}
+          className="px-5 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          Sign-up
+        </button>
+      </div>
     </div>
   );
 }
